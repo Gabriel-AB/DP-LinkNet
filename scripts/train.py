@@ -4,13 +4,13 @@ from time import time
 import torch
 import torch.utils.data as data
 
-from data import ImageFolder
-from framework import MyFrame
-from loss import dice_bce_loss
+from dplinknet.utils.data import ImageFolder
+from dplinknet.framework import MyFrame
+from dplinknet.utils.loss import dice_bce_loss
 
-# from networks.unet import UNet
-# from networks.dunet import DUNet
-from networks.dplinknet import LinkNet34, DLinkNet34, DPLinkNet34
+# from dplinknet.unet import UNet
+# from dplinknet.dunet import DUNet
+from dplinknet import LinkNet34, DLinkNet34, DPLinkNet34
 
 SHAPE = (256, 256)
 DATA_NAME = "DIBCO"  # BickleyDiary, DIBCO, PLM
