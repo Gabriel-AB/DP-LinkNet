@@ -4,12 +4,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from .utils import get_patches, stitch_together
-torch.autograd.set_grad_enabled(False)
+
 
 class Binarization:
     TILE_SIZE: int = 256
 
-    def __init__(self, net, device='cuda', quality: int = 2, hard: bool = True):
+    def __init__(self, net: torch.Module, device='cuda', quality: int = 2, hard: bool = True):
         self.hard = hard
         self.device = device
         self.quality = quality
@@ -66,6 +66,7 @@ class Binarization:
         output = self.postprocess(outputs)
         return output
     
+    @torch.inference_mode()
     def binarize(self, image: torch.Tensor | np.ndarray | str | Path) -> torch.Tensor:
         if isinstance(image, (str, Path)):
             image = cv2.imread(str(image))
