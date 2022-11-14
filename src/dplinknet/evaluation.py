@@ -3,9 +3,12 @@ import cv2
 import numpy as np
 import torch
 import torch.nn as nn
+from .utils import get_patches, stitch_together
 torch.autograd.set_grad_enabled(False)
 
 class Binarization:
+    TILE_SIZE: int = 256
+
     def __init__(self, net, device='cuda', quality: int = 2, hard: bool = True):
         self.hard = hard
         self.device = device
@@ -20,12 +23,16 @@ class Binarization:
     def __call__(self, image: torch.Tensor | np.ndarray | str | Path) -> torch.Tensor:
         return self.binarize(image)
 
-    def preprocess(self, image: np.ndarray | torch.Tensor) -> torch.Tensor:
+
+    def cuda(self) -> 'Binarization':
+        self.__init__(self.net, device='cuda', quality=self.quality, hard=self.hard)
+
+
+    def preprocess(self, image: torch.Tensor) -> torch.Tensor:
         # rotate 90 degree
-        image = torch.tensor(image)
-        
+        images = image[None]
         if self.quality >= 2:
-            images = torch.cat([image[None], image.rot90()[None]])
+            images = torch.cat([images, image.rot90()[None]])
 
             if self.quality >= 4:
                 # flip y axis on 2 images 
@@ -53,15 +60,22 @@ class Binarization:
 
         return images
 
+    def binarize_subimage(self, image: torch.Tensor) -> torch.Tensor:
+        batch = self.preprocess(image)
+        outputs = self.net(batch).squeeze()
+        output = self.postprocess(outputs)
+        return output
+    
     def binarize(self, image: torch.Tensor | np.ndarray | str | Path) -> torch.Tensor:
         if isinstance(image, (str, Path)):
             image = cv2.imread(str(image))
         if isinstance(image, np.ndarray):
             image = torch.tensor(image, dtype=torch.float32)
+        
+        locations, patches = get_patches(image, self.TILE_SIZE, self.TILE_SIZE)
+        output = [self.binarize_subimage(pat) for pat in patches]
+        output = stitch_together(locations, output, tuple(image.shape[0:2]), self.TILE_SIZE, self.TILE_SIZE)
 
-        batch = self.preprocess(image)
-        outputs = self.net(batch)
-        output = self.postprocess(outputs)
         if self.hard:
             output[output >= 0.5] = 1
             output[output < 0.5] = 0
