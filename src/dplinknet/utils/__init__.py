@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 TILE_SIZE = 128
 PADDING_SIZE = 21  # round(TILE_SIZE / 4)
@@ -41,8 +42,8 @@ def get_patches(img, patch_h=TILE_SIZE, patch_w=TILE_SIZE):
     return locations, patches
 
 
-def stitch_together(locations, patches, size, patch_h=TILE_SIZE, patch_w=TILE_SIZE):
-    output = np.zeros(size, dtype=np.float32)
+def stitch_together(locations, patches: list[torch.Tensor], size, device: torch.device, patch_h=TILE_SIZE, patch_w=TILE_SIZE):
+    output = torch.zeros(size, dtype=torch.float32, device=device)
 
     for location, patch in zip(locations, patches):
         outer_bounding_box, inner_bounding_box, y_type, x_type = location

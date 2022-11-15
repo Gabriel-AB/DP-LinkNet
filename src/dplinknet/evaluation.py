@@ -75,7 +75,7 @@ class Binarization:
         
         locations, patches = get_patches(image, self.TILE_SIZE, self.TILE_SIZE)
         output = [self.binarize_subimage(pat) for pat in patches]
-        output = stitch_together(locations, output, tuple(image.shape[0:2]), self.TILE_SIZE, self.TILE_SIZE)
+        output = stitch_together(locations, output, tuple(image.shape[0:2]), torch.device(self.device), self.TILE_SIZE, self.TILE_SIZE)
 
         if self.hard:
             output[output >= 0.5] = 1
