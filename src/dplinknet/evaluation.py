@@ -9,7 +9,7 @@ from .utils import get_patches, stitch_together
 class Binarization:
     TILE_SIZE: int = 256
 
-    def __init__(self, net: torch.Module, device='cuda', quality: int = 2, hard: bool = True):
+    def __init__(self, net: nn.Module, device='cuda', quality: int = 2, hard: bool = True):
         self.hard = hard
         self.device = device
         self.quality = quality
