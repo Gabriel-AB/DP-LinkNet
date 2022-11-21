@@ -21,12 +21,14 @@ class Binarization:
                 i.eval()
 
     def __call__(self, image: torch.Tensor | np.ndarray | str | Path) -> torch.Tensor:
+        if isinstance(image, (str, Path)):
+            image = cv2.imread(str(image))
+        if isinstance(image, np.ndarray):
+            image = torch.tensor(image, dtype=torch.float32)
         return self.binarize(image)
 
-
     def cuda(self) -> 'Binarization':
-        self.__init__(self.net, device='cuda', quality=self.quality, hard=self.hard)
-
+        return self.__init__(self.net, device='cuda', quality=self.quality, hard=self.hard)
 
     def preprocess(self, image: torch.Tensor) -> torch.Tensor:
         # rotate 90 degree
@@ -67,11 +69,7 @@ class Binarization:
         return output
     
     @torch.inference_mode()
-    def binarize(self, image: torch.Tensor | np.ndarray | str | Path) -> torch.Tensor:
-        if isinstance(image, (str, Path)):
-            image = cv2.imread(str(image))
-        if isinstance(image, np.ndarray):
-            image = torch.tensor(image, dtype=torch.float32)
+    def binarize(self, image: torch.Tensor) -> torch.Tensor:
         
         locations, patches = get_patches(image, self.TILE_SIZE, self.TILE_SIZE)
         output = [self.binarize_subimage(pat) for pat in patches]
