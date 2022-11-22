@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "DP-LinkNet: A convolutional network for historical document image binarization"
 requires-python = ">=3.6.10"
 dependencies = [
-    "torch~=1.7.1",
-    "torchvision~=0.8.2",
-    "opencv-python~=4.6.0"
+    "torch>=1.7.1",
+    "torchvision>=0.8.2",
+    "opencv-python>=4.6.0"
 ]
