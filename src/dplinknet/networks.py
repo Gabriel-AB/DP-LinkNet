@@ -1,4 +1,4 @@
-# Deep network models
+"""Deep network models"""
 
 from functools import partial
 
@@ -23,10 +23,10 @@ class SPPblock(nn.Module):
     def forward(self, x):
         self.in_channels, h, w = x.size(1), x.size(2), x.size(3)
 
-        self.layer1 = F.upsample(self.conv(self.pool1(x)), size=(h, w), mode="bilinear")
-        self.layer2 = F.upsample(self.conv(self.pool2(x)), size=(h, w), mode="bilinear")
-        self.layer3 = F.upsample(self.conv(self.pool3(x)), size=(h, w), mode="bilinear")
-        # self.layer4 = F.upsample(self.conv(self.pool4(x)), size=(h, w), mode="bilinear")
+        self.layer1 = F.interpolate(self.conv(self.pool1(x)), size=(h, w), mode="bilinear")
+        self.layer2 = F.interpolate(self.conv(self.pool2(x)), size=(h, w), mode="bilinear")
+        self.layer3 = F.interpolate(self.conv(self.pool3(x)), size=(h, w), mode="bilinear")
+        # self.layer4 = F.interpolate(self.conv(self.pool4(x)), size=(h, w), mode="bilinear")
 
         out = torch.cat([self.layer1, self.layer2, self.layer3,
                          # self.layer4,
@@ -94,7 +94,7 @@ class DPLinkNet34(nn.Module):
         super(DPLinkNet34, self).__init__()
 
         filters = [64, 128, 256, 512]
-        resnet = models.resnet34(pretrained=True)
+        resnet = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
         self.firstconv = resnet.conv1
         self.firstbn = resnet.bn1
         self.firstrelu = resnet.relu
@@ -145,7 +145,7 @@ class DPLinkNet34(nn.Module):
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
 
-        return F.sigmoid(out)
+        return torch.sigmoid(out)
 
 
 class DLinkNet34_less_pool(nn.Module):
@@ -153,7 +153,7 @@ class DLinkNet34_less_pool(nn.Module):
         super(DLinkNet34_less_pool, self).__init__()
 
         filters = [64, 128, 256, 512]
-        resnet = models.resnet34(pretrained=True)
+        resnet = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
         self.firstconv = resnet.conv1
         self.firstbn = resnet.bn1
         self.firstrelu = resnet.relu
@@ -199,7 +199,7 @@ class DLinkNet34_less_pool(nn.Module):
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
 
-        return F.sigmoid(out)
+        return torch.sigmoid(out)
 
 
 class DLinkNet34(nn.Module):
@@ -207,7 +207,7 @@ class DLinkNet34(nn.Module):
         super(DLinkNet34, self).__init__()
 
         filters = [64, 128, 256, 512]
-        resnet = models.resnet34(pretrained=True)
+        resnet = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
         self.firstconv = resnet.conv1
         self.firstbn = resnet.bn1
         self.firstrelu = resnet.relu
@@ -256,7 +256,7 @@ class DLinkNet34(nn.Module):
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
 
-        return F.sigmoid(out)
+        return torch.sigmoid(out)
 
 
 class DLinkNet50(nn.Module):
@@ -312,7 +312,7 @@ class DLinkNet50(nn.Module):
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
 
-        return F.sigmoid(out)
+        return torch.sigmoid(out)
 
 
 class DLinkNet101(nn.Module):
@@ -368,7 +368,7 @@ class DLinkNet101(nn.Module):
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
 
-        return F.sigmoid(out)
+        return torch.sigmoid(out)
 
 
 class LinkNet34(nn.Module):
@@ -376,7 +376,7 @@ class LinkNet34(nn.Module):
         super(LinkNet34, self).__init__()
 
         filters = [64, 128, 256, 512]
-        resnet = models.resnet34(pretrained=True)
+        resnet = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
         self.firstconv = resnet.conv1
         self.firstbn = resnet.bn1
         self.firstrelu = resnet.relu
@@ -419,4 +419,4 @@ class LinkNet34(nn.Module):
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
 
-        return F.sigmoid(out)
+        return torch.sigmoid(out)

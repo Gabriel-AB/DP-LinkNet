@@ -1,10 +1,10 @@
-# Prepare dataset for training
+"""Prepare dataset for training"""
 
 import os
 
 import cv2
 
-from utils import get_patches
+from dplinknet.utils import get_patches
 
 TILE_SIZE = 256
 print("Image patch size:", TILE_SIZE, "x", TILE_SIZE)

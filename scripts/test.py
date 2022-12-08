@@ -6,10 +6,10 @@ import numpy as np
 import torch
 from torch.autograd import Variable as V
 
-# from networks.unet import UNet
-# from networks.dunet import DUNet
-from networks.dplinknet import LinkNet34, DLinkNet34, DPLinkNet34
-from utils import get_patches, stitch_together
+# from .networks.unet import UNet
+# from .networks.dunet import DUNet
+from dplinknet import LinkNet34, DLinkNet34, DPLinkNet34
+from dplinknet.utils import get_patches, stitch_together
 
 BATCHSIZE_PER_CARD = 32
 
