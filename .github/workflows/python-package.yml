@@ -27,14 +27,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+    - name: Build Python Source and Wheel Distributions
+      # You may pin to the exact commit or the version.
+      # uses: OpenAstronomy/build-python-dist@bbb0e1c5b132893999ea56d77bd4b526e0097c7d
+      uses: OpenAstronomy/build-python-dist@v1.0.1
+      with:
+        # Any extras_requires modifier that should be used to install the package for testing
+        test_extras: false # optional, default is 
+        # The command to run to test the package (will be run in a temporary directory)
+        test_command: false # optional, default is 
+        # Whether to build a pure Python wheel in addition to the source distribution
+        pure_python_wheel: true # optional
+        # The Python version to use for building and testing
+        python-version: "3.10" # optional, default is 3.x
