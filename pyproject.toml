@@ -10,5 +10,7 @@ requires-python = ">=3.6.10"
 dependencies = [
     "torch>=1.7.1",
     "torchvision>=0.8.2",
-    "opencv-python>=4.6.0"
 ]
+
+[project.optional-dependencies]
+all = ["opencv-python>=4.6.0"]
