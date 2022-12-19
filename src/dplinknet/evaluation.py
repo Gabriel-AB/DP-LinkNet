@@ -1,5 +1,5 @@
 from pathlib import Path
-import cv2
+import cv2 as cv
 import numpy as np
 import torch
 import torch.nn as nn
@@ -9,26 +9,24 @@ from .utils import get_patches, stitch_together
 class Binarization:
     TILE_SIZE: int = 256
 
-    def __init__(self, net: type[nn.Module], device='cuda', quality: int = 2, hard: bool = True):
+    def __init__(self, model: type[nn.Module], device: str | torch.device = 'cpu', quality: int = 2, hard: bool = True):
         self.hard = hard
-        self.device = device
         self.quality = quality
-        self.net = net().cuda() if device == 'cuda' else net()
-        dev_ids = range(torch.cuda.device_count() if device == 'cuda' else 4)
-        self.net = torch.nn.DataParallel(self.net, device_ids=dev_ids)
-        for i in self.net.modules():
+        self.device = torch.device(device)
+        self.model = model().cuda() if self.device.type == 'cuda' else model()
+        for i in self.model.modules():
             if isinstance(i, nn.BatchNorm2d):
                 i.eval()
 
     def __call__(self, image: torch.Tensor | np.ndarray | str | Path) -> torch.Tensor:
         if isinstance(image, (str, Path)):
-            image = cv2.imread(str(image))
+            image = cv.imread(str(image))
         if isinstance(image, np.ndarray):
             image = torch.tensor(image, dtype=torch.float32)
         return self.binarize(image)
 
     def cuda(self) -> 'Binarization':
-        return self.__init__(self.net, device='cuda', quality=self.quality, hard=self.hard)
+        return self.__init__(self.model, device='cuda', quality=self.quality, hard=self.hard)
 
     def preprocess(self, image: torch.Tensor) -> torch.Tensor:
         # rotate 90 degree
@@ -64,7 +62,7 @@ class Binarization:
 
     def binarize_subimage(self, image: torch.Tensor) -> torch.Tensor:
         batch = self.preprocess(image)
-        outputs = self.net(batch).squeeze()
+        outputs = self.model(batch).squeeze()
         output = self.postprocess(outputs)
         return output
     
@@ -81,7 +79,7 @@ class Binarization:
         return output
 
     def save(self, path: str):
-        torch.save(self.net.state_dict(), path)
+        torch.save(self.model.state_dict(), path)
 
     def load(self, path: str):
-        self.net.load_state_dict(torch.load(path, map_location=self.device))
+        self.model.load_state_dict(torch.load(path, map_location=self.device))
